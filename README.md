@@ -1,5 +1,5 @@
 
-<p align="middle" >Logo</p>
+<p align="middle" ><img src="https://raw.githubusercontent.com/daybrush/overlap-area/master/demo/images/logo.png" /></p>
 <h2 align="middle">Overlap Area</h2>
 <p align="middle">
 <a href="https://www.npmjs.com/package/overlap-area" target="_blank"><img src="https://img.shields.io/npm/v/overlap-area.svg?style=flat-square&color=007acc&label=version" alt="npm version" /></a>
