@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square"/>
 <a href="https://github.com/daybrush/overlap-area/blob/master/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/daybrush/overlap-area.svg?style=flat-square&label=license&color=08CE5D"/></a>
 </p>
-<p align="middle">description</p>
+<p align="middle">Find the overlap area.</p>
 
 ## 📄 API Documents
 * [API documentation](https://daybrush.com/overlap-area/release/latest/doc/)

@@ -1,7 +1,7 @@
 {
   "name": "overlap-area",
-  "version": "0.0.1",
-  "description": "new project",
+  "version": "0.1.0",
+  "description": "Find the overlap area.",
   "main": "./dist/overlap-area.cjs.js",
   "module": "./dist/overlap-area.esm.js",
   "sideEffects": false,
@@ -21,12 +21,19 @@
   },
   "author": "Daybrush",
   "license": "MIT",
+  "keywords": [
+      "overlap",
+      "overlapping",
+      "collision",
+      "area",
+      "points"
+  ],
   "bugs": {
     "url": "https://github.com/daybrush/overlap-area/issues"
   },
   "homepage": "https://github.com/daybrush/overlap-area#readme",
   "dependencies": {
-    "@daybrush/utils": "^1.3.0"
+    "@daybrush/utils": "^1.3.1"
   },
   "devDependencies": {
     "@daybrush/builder": "^0.1.2",
