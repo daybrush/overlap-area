@@ -16,6 +16,21 @@ export function getAreaSize(points: number[][]) {
     }))) / 2;
 }
 /**
+ * Get the minimum and maximum points of the points.
+ * @memberof OverlapArea
+ */
+export function getMinMaxs(points: number[][]): { minX: number, minY: number, maxX: number, maxY: number } {
+    const xs = points.map(point => point[0]);
+    const ys = points.map(point => point[1]);
+
+    return {
+        minX: Math.min(...xs),
+        minY: Math.min(...ys),
+        maxX: Math.max(...xs),
+        maxY: Math.max(...ys),
+    };
+}
+/**
  * Whether the point is in shape
  * @param - point pos
  * @param - shape points
@@ -24,12 +39,12 @@ export function getAreaSize(points: number[][]) {
  */
 export function isInside(pos: number[], points: number[][], excludeLine?: boolean) {
     const [x, y] = pos;
-    const xs = points.map(point => point[0]);
-    const ys = points.map(point => point[1]);
-    const minX = Math.min(...xs);
-    const maxX = Math.max(...xs);
-    const minY = Math.min(...ys);
-    const maxY = Math.max(...ys);
+    const {
+        minX,
+        minY,
+        maxX,
+        maxY,
+    } = getMinMaxs(points);
 
     const xLine = [[minX, y], [maxX, y]];
     const yLine = [[x, minY], [x, maxY]];
