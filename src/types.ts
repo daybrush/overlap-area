@@ -3,3 +3,9 @@ export interface PointInfo {
     index2: number;
     pos: number[];
 }
+export interface Rect {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+}

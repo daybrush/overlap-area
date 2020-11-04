@@ -1,5 +1,5 @@
 import { sum, findIndex, getShapeDirection, getDist } from "@daybrush/utils";
-import { PointInfo } from "./types";
+import { PointInfo, Rect } from "./types";
 
 /**
  * @namespace OverlapArea
@@ -18,6 +18,25 @@ export function getAreaSize(points: number[][]) {
 
         return point[0] * nextPoint[1] - nextPoint[0] * point[1];
     }))) / 2;
+}
+
+
+/**
+ * Get points that fit the rect,
+ * @memberof OverlapArea
+ */
+export function fitPoints(points: number[][], rect: Rect) {
+    const { width, height, left, top } = rect;
+    const { minX, minY, maxX, maxY } = getMinMaxs(points);
+    const ratioX = width / (maxX - minX);
+    const ratioY = height / (maxY - minY);
+
+    return points.map(point => {
+        return [
+            left + (point[0] - minX) * ratioX,
+            top + (point[1] - minY) * ratioY,
+        ];
+    });
 }
 /**
  * Get the minimum and maximum points of the points.

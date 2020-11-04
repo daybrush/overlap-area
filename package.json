@@ -1,6 +1,6 @@
 {
     "name": "overlap-area",
-    "version": "0.3.3",
+    "version": "0.4.0",
     "description": "Find the Overlap Area.",
     "main": "./dist/overlap-area.cjs.js",
     "module": "./dist/overlap-area.esm.js",
