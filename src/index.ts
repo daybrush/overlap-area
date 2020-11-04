@@ -10,6 +10,9 @@ import { PointInfo } from "./types";
  * @memberof OverlapArea
  */
 export function getAreaSize(points: number[][]) {
+    if (points.length < 3) {
+        return 0;
+    }
     return Math.abs(sum(points.map((point, i) => {
         const nextPoint = points[i + 1] || points[0];
 
