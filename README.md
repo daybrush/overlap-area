@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square"/>
 <a href="https://github.com/daybrush/overlap-area/blob/master/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/daybrush/overlap-area.svg?style=flat-square&label=license&color=08CE5D"/></a>
 </p>
-<p align="middle">Find the overlap area.</p>
+<p align="middle">Find the Overlap Area.</p>
 
 ## 📄 API Documents
 * [API documentation](https://daybrush.com/overlap-area/release/latest/doc/)
@@ -22,7 +22,31 @@ $ npm install overlap-area
 
 ## 🚀 How to use
 ```ts
-import { getOverlapPoints, getOverlapSize } from "overlap-area";
+import { isInside, getOverlapPoints, getOverlapSize } from "overlap-area";
+
+const points1 = [
+    [0, 0],
+    [100, 0],
+    [120, 100],
+    [0, 100],
+];
+const points2 = [
+    [100, 0],
+    [150, 0],
+    [150, 100],
+    [100, 100],
+];
+
+// true
+console.log(isInside([50, 50], points1));
+// false
+console.log(isInside([50, 50], points2));
+
+// [100, 0], [120, 100], [100, 100]
+console.log(getOverlapPoints(points1, points2));
+
+// 1000
+console.log(getOverlapSize(points1, points2));
 ```
 
 ## ⭐️ Show Your Support

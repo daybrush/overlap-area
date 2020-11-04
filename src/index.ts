@@ -1,4 +1,5 @@
 import { sum, findIndex, getShapeDirection, getDist } from "@daybrush/utils";
+import { PointInfo } from "./types";
 
 /**
  * @namespace OverlapArea
@@ -59,8 +60,12 @@ export function isInside(pos: number[], points: number[][], excludeLine?: boolea
         const xPoints = getPointsOnLines(getIntersectionPointsByConstants(xLinearConstants, linearConstants), [xLine, line]);
         const yPoints = getPointsOnLines(getIntersectionPointsByConstants(yLinearConstants, linearConstants), [yLine, line]);
 
-        intersectionXPoints.push(...xPoints);
-        intersectionYPoints.push(...yPoints);
+        if (xPoints.length === 1 ? line[0][1] !== y : true) {
+            intersectionXPoints.push(...xPoints);
+        }
+        if (yPoints.length === 1 ? line[0][0] !== x : true) {
+            intersectionYPoints.push(...yPoints);
+        }
 
         if (!linearConstants[0]) {
             intersectionXPoints.push(...xPoints);
@@ -132,7 +137,11 @@ export function getIntersectionPointsByConstants(
     const [a1, b1, c1] = linearConstants1;
     const [a2, b2, c2] = linearConstants2;
 
-    if (a1 === 0 && a2 === 0) {
+    const isZeroA = a1 === 0 && a2 === 0;
+    const isZeroB = b1 === 0 && b2 === 0;
+    if (isZeroA && isZeroB) {
+        return [];
+    } else if (isZeroA) {
         // b1 * y + c1 = 0
         // b2 * y + c2 = 0
         const y1 = -c1 / b1;
@@ -146,7 +155,7 @@ export function getIntersectionPointsByConstants(
                 [Infinity, y1],
             ];
         }
-    } else if (b1 === 0 && b2 === 0) {
+    } else if (isZeroB) {
         // a1 * x + c1 = 0
         // a2 * x + c2 = 0
         const x1 = -c1 / a1;
@@ -288,40 +297,102 @@ export function convertLines(points: number[][]) {
 * @memberof OverlapArea
 */
 export function getOverlapPoints(points1: number[][], points2: number[][]) {
-    const lines1 = convertLines(points1);
-    const lines2 = convertLines(points2);
+    const targetPoints1 = points1.slice();
+    const targetPoints2 = points2.slice();
+
+    if (getShapeDirection(targetPoints1) === -1) {
+        targetPoints1.reverse();
+    }
+    if (getShapeDirection(targetPoints2) === -1) {
+        targetPoints2.reverse();
+    }
+    const lines1 = convertLines(targetPoints1);
+    const lines2 = convertLines(targetPoints2);
     const linearConstantss1 = lines1.map(line1 => getLinearConstants(line1[0], line1[1]));
     const linearConstantss2 = lines2.map(line2 => getLinearConstants(line2[0], line2[1]));
 
-    const overlappingPoints: number[][] = [];
-    const points2Direction = getShapeDirection(points2);
+    const overlapInfos: Array<{
+        index1: number;
+        index2: number;
+        pos: number[];
+    }> = [];
 
-    lines2.forEach(line2 => {
-        if (isInside(line2[1], points1)) {
-            overlappingPoints[points2Direction > 0 ? "push" : "unshift"](line2[1]);
-        }
-    });
     linearConstantss1.forEach((linearConstants1, i) => {
         const line1 = lines1[i];
-        const linePoints: number[][] = [];
-
+        const linePointInfos: PointInfo[] = [];
         linearConstantss2.forEach((linearConstants2, j) => {
             const intersectionPoints = getIntersectionPointsByConstants(linearConstants1, linearConstants2);
             const points = getPointsOnLines(intersectionPoints, [line1, lines2[j]]);
 
-            linePoints.push(...points);
+            linePointInfos.push(...points.map(pos => ({
+                index1: i,
+                index2: j,
+                pos,
+            })));
         });
-        linePoints.sort((a, b) => {
-            return getDist(line1[0], a) - getDist(line1[0], b);
+        linePointInfos.sort((a, b) => {
+            return getDist(line1[0], a.pos) - getDist(line1[0], b.pos);
         });
-        overlappingPoints.push(...linePoints);
-        if (isInside(line1[1], points2)) {
-            overlappingPoints.push(line1[1]);
+
+        overlapInfos.push(...linePointInfos);
+
+        if (isInside(line1[1], targetPoints2)) {
+            overlapInfos.push({
+                index1: i,
+                index2: -1,
+                pos: line1[1],
+            });
         }
     });
+
+    lines2.forEach((line2, i) => {
+        if (isInside(line2[1], targetPoints1)) {
+            let isNext = false;
+            let index = findIndex(overlapInfos, ({ index2 }) => {
+                if (index2 === i) {
+                    isNext = true;
+                    return false;
+                }
+
+                if (isNext) {
+                    return true;
+                }
+                return false;
+            });
+            if (index === -1) {
+                isNext = false;
+                index = findIndex(overlapInfos, ({ index1, index2 }) => {
+                    if (index1 === -1 && index2 + 1 === i) {
+                        isNext = true;
+                        return false;
+                    }
+
+                    if (isNext) {
+                        return true;
+                    }
+                    return false;
+                });
+            }
+            if (index === -1) {
+                overlapInfos.push({
+                    index1: -1,
+                    index2: i,
+                    pos: line2[1],
+                });
+            } else {
+                overlapInfos.splice(index, 0, {
+                    index1: -1,
+                    index2: i,
+                    pos: line2[1],
+                });
+            }
+        }
+    });
+    // console.log(overlapInfos);
+    const overlapPoints = overlapInfos.map(({ pos }) => pos);
     const pointMap: Record<string, boolean> = {};
 
-    return overlappingPoints.filter(point => {
+    return overlapPoints.filter(point => {
         const key = `${point[0]}x${point[1]}`;
 
         if (pointMap[key]) {
