@@ -9,7 +9,7 @@ import { PointInfo, Rect } from "./types";
  * Gets the size of a shape (polygon) made of points.
  * @memberof OverlapArea
  */
-export function getAreaSize(points: number[][]) {
+export function getAreaSize(points: number[][]): number {
     if (points.length < 3) {
         return 0;
     }
@@ -25,7 +25,7 @@ export function getAreaSize(points: number[][]) {
  * Get points that fit the rect,
  * @memberof OverlapArea
  */
-export function fitPoints(points: number[][], rect: Rect) {
+export function fitPoints(points: number[][], rect: Rect): number[][] {
     const { width, height, left, top } = rect;
     const { minX, minY, maxX, maxY } = getMinMaxs(points);
     const ratioX = width / (maxX - minX);
@@ -60,7 +60,7 @@ export function getMinMaxs(points: number[][]): { minX: number, minY: number, ma
  * @param - whether to check except line
  * @memberof OverlapArea
  */
-export function isInside(pos: number[], points: number[][], excludeLine?: boolean) {
+export function isInside(pos: number[], points: number[][], excludeLine?: boolean): boolean {
     const [x, y] = pos;
     const {
         minX,
@@ -119,7 +119,7 @@ export function isInside(pos: number[], points: number[][], excludeLine?: boolea
  * @return [a, b, c]
  * @memberof OverlapArea
  */
-export function getLinearConstants(point1: number[], point2: number[]) {
+export function getLinearConstants(point1: number[], point2: number[]): [number, number, number] {
     const [x1, y1] = point1;
     const [x2, y2] = point2;
     // ax + by + c = 0
@@ -155,7 +155,7 @@ export function getLinearConstants(point1: number[], point2: number[]) {
 export function getIntersectionPointsByConstants(
     linearConstants1: number[],
     linearConstants2: number[],
-) {
+): number[][] {
     const [a1, b1, c1] = linearConstants1;
     const [a2, b2, c2] = linearConstants2;
 
@@ -243,7 +243,7 @@ export function getIntersectionPoints(
     line1: number[][],
     line2: number[][],
     isLimit?: boolean,
-) {
+): number[][] {
     const points = getIntersectionPointsByConstants(
         getLinearConstants(line1[0], line1[1]),
         getLinearConstants(line2[0], line2[1]),
@@ -261,7 +261,7 @@ export function getIntersectionPoints(
 export function getPointsOnLines(
     points: number[][],
     lines: number[][][],
-) {
+): number[][] {
     const minMaxs = lines.map(line => [0, 1].map(order => [
         Math.min(line[0][order], line[1][order]),
         Math.max(line[0][order], line[1][order]),
@@ -310,7 +310,7 @@ export function getPointsOnLines(
 * @function
 * @memberof OverlapArea
 */
-export function convertLines(points: number[][]) {
+export function convertLines(points: number[][]): number[][][] {
     return [...points.slice(1), points[0]].map((point, i) => [points[i], point]);
 }
 /**
@@ -318,7 +318,7 @@ export function convertLines(points: number[][]) {
 * @function
 * @memberof OverlapArea
 */
-export function getOverlapPoints(points1: number[][], points2: number[][]) {
+export function getOverlapPoints(points1: number[][], points2: number[][]): number[][] {
     const targetPoints1 = points1.slice();
     const targetPoints2 = points2.slice();
 
@@ -429,7 +429,7 @@ export function getOverlapPoints(points1: number[][], points2: number[][]) {
 * @function
 * @memberof OverlapArea
 */
-export function getOverlapSize(points1: number[][], points2: number[][]) {
+export function getOverlapSize(points1: number[][], points2: number[][]): number {
     const points = getOverlapPoints(points1, points2);
 
     return getAreaSize(points);
