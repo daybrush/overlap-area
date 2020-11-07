@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+    <meta name="description" content="Find the Overlap Area." />
+    <meta property="og:title" content="Find the Overlap Area.">
+    <meta property="og:url" content="https://daybrush.com/overlap-area">
+    <meta property="og:image" content="https://daybrush.com/overlap-area/images/logo.png">
+    <meta property="og:description" content="Find the Overlap Area.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Find the Overlap Area.">
+    <meta name="twitter:url" content="https://daybrush.com/overlap-area">
+    <meta name="twitter:image" content="https://daybrush.com/overlap-area/images/logo.png">
+    <meta name="twitter:description" content="Find the Overlap Area.">
+    <meta name="theme-color" content="#333333">
+    <title>Find the Overlap Area.</title>
+</head>
+
+<body>
+    <div class="target" style="top: 50px;left: 50px;"></div>
+    <div class="target" style="top: 100px;left: 250px; transform: skew(30deg)"></div>
+    <svg>
+        <path d=""></path>
+    </svg>
+</body>
+<style>
+    html,
+    body {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .target {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        transform: rotate(45deg);
+        background: #333;
+    }
+
+    svg {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    svg path {
+        fill: #f55;
+        stroke: #55f;
+        stroke-width: 2;
+    }
+</style>
+<script src="https://daybrush.com/moveable/release/latest/dist/moveable.js"></script>
+<script src="../dist/overlap-area.min.js"></script>
+<script src="../../selecto/dist/selecto.min.js"></script>
+<script>
+    function drawPath(e) {
+        const targets = selecto.getSelectedTargets();
+
+        pathElement.setAttribute("d", targets.map(target => {
+            const rect = e.rect;
+            const rectPoints = [
+                [rect.left, rect.top],
+                [rect.right, rect.top],
+                [rect.right, rect.bottom],
+                [rect.left, rect.bottom],
+            ];
+
+            const points = OverlapArea.getOverlapPoints(
+                selecto.getElementPoints(target),
+                rectPoints,
+            );
+
+            return points.length ? `M ${points.join(", L")} Z` : "";
+        }).join(" "));
+    }
+    const pathElement = document.querySelector("path");
+    const selecto = new Selecto({
+        // container: document.body,
+        selectableTargets: [".target"],
+        selectFromInside: true,
+        hitRate: 0,
+        getElementRect: Moveable.getElementInfo,
+    }).on("selectStart", e => {
+        drawPath(e);
+    }).on("drag", e => {
+        drawPath(e);
+    });
+</script>
+
+</html>
