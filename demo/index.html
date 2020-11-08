@@ -256,6 +256,10 @@
         hitRate: 0,
         getElementRect: Moveable.getElementInfo,
     }).on("dragStart", e => {
+        if (e.inputEvent.target.tagName === "A") {
+            e.stop();
+            return;
+        }
         scene.finish();
     }).on("selectStart", e => {
         e.removed.forEach(target => {
