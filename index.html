@@ -19,11 +19,52 @@
 </head>
 
 <body>
-    <div class="target" style="top: 50px;left: 50px;"></div>
-    <div class="target" style="top: 100px;left: 250px; transform: skew(30deg)"></div>
-    <svg>
-        <path d=""></path>
-    </svg>
+    <div class="page">
+        <div class="container">
+            <div class="header">
+                <div class="selection-hint"></div>
+                <div class="target">
+                    <div class="rect" style="background: #e55;"></div>
+                    <div class="text">0</div>
+                </div>
+                <div class="target">
+                    <div class="rect" style="transform: rotate(45deg); background: #77dda5;"></div>
+                    <div class="text">0</div>
+                </div>
+                <div class="target">
+                    <div class="rect" style="transform: skew(-30deg); background: #7799ee;"></div>
+                    <div class="text">0</div>
+                </div>
+                <svg>
+                    <path d=""></path>
+                </svg>
+            </div>
+            <h1>Overlap Area</h1>
+            <p class="badges">
+                <a href="https://www.npmjs.com/package/overlap-area" target="_blank">
+                    <img src="https://img.shields.io/npm/v/overlap-area.svg?style=flat-square&color=007acc&label=version"
+                        alt="npm version" /></a>
+                <a href="https://github.com/daybrush/overlap-area" target="_blank">
+                    <img
+                        src="https://img.shields.io/github/stars/daybrush/overlap-area.svg?color=42b883&style=flat-square" /></a>
+                <a href="https://github.com/daybrush/overlap-area" target="_blank">
+                    <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square" />
+                </a>
+                <a href="https://github.com/daybrush/overlap-area/blob/master/LICENSE" target="_blank">
+                    <img
+                        src="https://img.shields.io/github/license/daybrush/overlap-area.svg?style=flat-square&label=license&color=08CE5D" />
+                </a>
+            </p>
+            <p class="description">Find the Overlap Area.</p>
+            <div class="buttons">
+                <a href="https://github.com/daybrush/overlap-area" class="button" target="_blank">Download</a>
+                <a href="https://daybrush.com/selecto/release/latest/doc" class="button" target="_blank">API</a>
+                <a href="https://daybrush.com/selecto/storybook/?path=/story/selecto--select-accurately" class="button"
+                    target="_blank">Use with Selecto</a>
+            </div>
+        </div>
+
+    </div>
 </body>
 <style>
     html,
@@ -33,14 +74,90 @@
         height: 100%;
         margin: 0;
         padding: 0;
+        font-family: sans-serif;
+        background: #f5f5f5;
+        color: #333;
+    }
+
+    a {
+        text-decoration: none;
+        color: #333;
+    }
+
+    .page {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        min-height: 500px;
+        overflow: hidden;
+    }
+
+    .container {
+        position: relative;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        display: inline-block;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .container,
+    .header,
+    .target,
+    svg {
+        transform-style: preserve-3d;
+    }
+
+    .header {
+        padding: 20px;
     }
 
     .target {
-        position: absolute;
+        position: relative;
         width: 100px;
         height: 100px;
-        transform: rotate(45deg);
+        color: #fff;
+        margin: 10px 20px;
+        display: inline-block;
+    }
+
+    .rect {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+    }
+
+    .text {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        line-height: 100px;
+        text-align: center;
+        transform: translateZ(1px);
+    }
+
+    .buttons {
+        padding: 5px;
+    }
+
+    .button {
+        display: inline-block;
+        padding: 12px 20px;
+        border: 1px solid #333;
+        color: #333;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 14px;
+        letter-spacing: 1px;
+        margin: 2px;
+        transition: all ease 0.2s;
+    }
+
+    .button:hover {
         background: #333;
+        color: #fff;
     }
 
     svg {
@@ -50,20 +167,66 @@
         top: 0;
         left: 0;
         pointer-events: none;
-        opacity: 0.7;
+        opacity: 0.9;
+        transform: translateZ(0px);
     }
 
     svg path {
-        fill: #f55;
-        stroke: #55f;
+        fill: #333333aa;
+        stroke: red;
         stroke-width: 2;
     }
+
+    .selection-hint {
+        position: absolute;
+        border: 1px solid #4af;
+        background: rgba(68, 170, 255, 0.5);
+        width: 50px;
+        height: 50px;
+        top: 0;
+        left: 0;
+        z-index: 1;
+    }
 </style>
-<script src="https://daybrush.com/moveable/release/latest/dist/moveable.js"></script>
-<script src="../dist/overlap-area.min.js"></script>
-<script src="../../selecto/dist/selecto.min.js"></script>
+<script src="https://daybrush.com/scenejs/release/latest/dist/scene.min.js"></script>
+<script src="https://daybrush.com/moveable/release/latest/dist/moveable.min.js"></script>
+<script src="https://daybrush.com/overlap-area/release/latest/dist/overlap-area.min.js"></script>
+<script src="https://daybrush.com/selecto/release/latest/dist/selecto.min.js"></script>
 <script>
+    const scene = new Scene({
+        ".selection-hint": {
+            0: {
+                opacity: 0,
+            },
+            "0>": {
+                opacity: 1,
+                width: "0px",
+                height: "0px",
+            },
+            1: {
+                width: "60px",
+                height: "60px",
+            },
+            2.5: {},
+        },
+    }, {
+        selector: true,
+        easing: "ease-in-out",
+        iterationCount: "infinite",
+    }).playCSS();
+
+    const rectElements = [].slice.call(document.querySelectorAll(".target")).map(target => {
+        const rect = target.querySelector(".rect");
+
+        rect._textElement = target.querySelector(".text");
+
+        return rect;
+    });
+    const svgElement = document.querySelector("svg");
+    const pathElement = svgElement.querySelector("path");
+
     function drawPath(e) {
+        const svgRect = svgElement.getBoundingClientRect();
         const targets = selecto.getSelectedTargets();
 
         pathElement.setAttribute("d", targets.map(target => {
@@ -78,22 +241,46 @@
             const points = OverlapArea.getOverlapPoints(
                 selecto.getElementPoints(target),
                 rectPoints,
-            );
+            ).map(p => [p[0] - svgRect.left, p[1] - svgRect.top]);
+            target._textElement.innerHTML = `${Math.round(OverlapArea.getAreaSize(points))}`;
 
             return points.length ? `M ${points.join(", L")} Z` : "";
         }).join(" "));
     }
-    const pathElement = document.querySelector("path");
+
     const selecto = new Selecto({
-        // container: document.body,
-        selectableTargets: [".target"],
+        container: document.body,
+        dragContainer: window,
+        selectableTargets: rectElements,
         selectFromInside: true,
         hitRate: 0,
         getElementRect: Moveable.getElementInfo,
+    }).on("dragStart", e => {
+        scene.finish();
     }).on("selectStart", e => {
+        e.removed.forEach(target => {
+            target._textElement.innerHTML = "0";
+        });
         drawPath(e);
+    }).on("select", e => {
+        e.removed.forEach(target => {
+            target._textElement.innerHTML = "0";
+        });
     }).on("drag", e => {
         drawPath(e);
+    }).on("selectEnd", e => {
+        if (!e.selected.length) {
+            scene.playCSS();
+        }
+    });
+
+    window.addEventListener("resize", () => {
+        selecto.setSelectedTargets([]);
+        pathElement.setAttribute("d", "");
+        rectElements.forEach(rectElement => {
+            rectElement._textElement.innerHTML = "0";
+        });
+        scene.playCSS();
     });
 </script>
 
