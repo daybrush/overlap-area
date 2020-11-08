@@ -15,6 +15,7 @@
         "coverage": "jest --coverage && print-coveralls --sort=desc",
         "coveralls": "cat ./coverage/lcov.info | coveralls",
         "prerelease": "npm run build && prerelease --dirs=dist,doc",
+        "deploy": "gh-pages -d ./demo --dest=./ --add --remote origin",
         "release": "npm run build && npm run doc && release --dirs=dist,doc",
         "release:init": "npm run build && npm run doc && release -i --dirs=dist,doc"
     },
