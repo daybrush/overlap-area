@@ -55,6 +55,27 @@ console.log(getOverlapPoints(points1, points2));
 console.log(getOverlapSize(points1, points2));
 ```
 
+### Calculate the overlap of elements
+```js
+import { getElementInfo } from "moveable";
+import { getOverlapPoints, getOverlapSize } from "overlap-area";
+
+function getPoints(info) {
+    const { left, top, pos1, pos2, pos3, pos4 } = info;
+
+    return [pos1, pos2, pos4, pos3].map(pos => [left + pos[0], top + pos[1]]);
+}
+
+const points1 = getPoints(getElementInfo(element1));
+const points2 = getPoints(getElementInfo(element2));
+
+// Points of the overlapped area
+getOverlapPoints(points1, points2);
+
+// Size of the overlapped area
+getOverlapSize(points1, points2);
+```
+
 ## ⭐️ Show Your Support
 Please give a ⭐️ if this project helped you!
 
