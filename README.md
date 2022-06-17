@@ -83,8 +83,6 @@ Please give a ⭐️ if this project helped you!
 
 If you have any questions or requests or want to contribute to `overlap-area` or other packages, please write the [issue](https://github.com/daybrush/overlap-area/issues) or give me a Pull Request freely.
 
-**Special thanks to PMY**
-
 ## 🐞 Bug Report
 
 If you find a bug, please report to us opening a new [Issue](https://github.com/daybrush/overlap-area/issues) on GitHub.

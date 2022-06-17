@@ -1,6 +1,6 @@
 {
     "name": "overlap-area",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Find the Overlap Area.",
     "main": "./dist/overlap-area.cjs.js",
     "module": "./dist/overlap-area.esm.js",
@@ -37,7 +37,7 @@
     },
     "homepage": "https://github.com/daybrush/overlap-area#readme",
     "dependencies": {
-        "@daybrush/utils": "^1.3.1"
+        "@daybrush/utils": "^1.7.1"
     },
     "devDependencies": {
         "@daybrush/builder": "^0.1.2",

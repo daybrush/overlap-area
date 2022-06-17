@@ -1,5 +1,6 @@
-import { sum, findIndex, getShapeDirection, getDist } from "@daybrush/utils";
+import { sum, findIndex, getShapeDirection, getDist, throttle, TINY_NUM } from "@daybrush/utils";
 import { PointInfo, Rect } from "./types";
+import { tinyThrottle } from "./utils";
 
 /**
  * @namespace OverlapArea
@@ -161,6 +162,8 @@ export function getIntersectionPointsByConstants(
 
     const isZeroA = a1 === 0 && a2 === 0;
     const isZeroB = b1 === 0 && b2 === 0;
+    let results: number[][] = [];
+
     if (isZeroA && isZeroB) {
         return [];
     } else if (isZeroA) {
@@ -173,8 +176,8 @@ export function getIntersectionPointsByConstants(
             return [];
         } else {
             return [
-                [-Infinity, y1],
-                [Infinity, y1],
+                [-Infinity, tinyThrottle(y1)],
+                [Infinity, tinyThrottle(y1)],
             ];
         }
     } else if (isZeroB) {
@@ -187,8 +190,8 @@ export function getIntersectionPointsByConstants(
             return [];
         } else {
             return [
-                [x1, -Infinity],
-                [x1, Infinity],
+                [tinyThrottle(x1), -Infinity],
+                [tinyThrottle(x1), Infinity],
             ];
         }
     } else if (a1 === 0) {
@@ -198,7 +201,7 @@ export function getIntersectionPointsByConstants(
         const y = -c1 / b1;
         const x = -(b2 * y + c2) / a2;
 
-        return [[x, y]];
+        results = [[x, y]];
     } else if (a2 === 0) {
         // b2 * y + c2 = 0
         // y = - c2 / b2;
@@ -206,7 +209,7 @@ export function getIntersectionPointsByConstants(
         const y = -c2 / b2;
         const x = -(b1 * y + c1) / a1;
 
-        return [[x, y]];
+        results = [[x, y]];
     } else if (b1 === 0) {
         // a1 * x + c1 = 0
         // x = - c1 / a1;
@@ -214,7 +217,7 @@ export function getIntersectionPointsByConstants(
         const x = - c1 / a1;
         const y = -(a2 * x + c2) / b2;
 
-        return [[x, y]];
+        results = [[x, y]];
     } else if (b2 === 0) {
         // a2 * x + c2 = 0
         // x = - c2 / a2;
@@ -222,7 +225,7 @@ export function getIntersectionPointsByConstants(
         const x = - c2 / a2;
         const y = -(a1 * x + c1) / b1;
 
-        return [[x, y]];
+        results = [[x, y]];
     } else {
         // a1 * x + b1 * y + c1 = 0
         // a2 * x + b2 * y + c2 = 0
@@ -232,8 +235,10 @@ export function getIntersectionPointsByConstants(
         const x = (b1 * c2 - b2 * c1) / (b2 * a1 - b1 * a2);
         const y = -(a1 * x + c1) / b1;
 
-        return [[x, y]];
+        results = [[x, y]];
     }
+
+    return results.map(result => [tinyThrottle(result[0]), tinyThrottle(result[1])]);
 }
 /**
  * Get intersection points to the two lines.
@@ -266,6 +271,8 @@ export function getPointsOnLines(
         Math.min(line[0][order], line[1][order]),
         Math.max(line[0][order], line[1][order]),
     ]));
+    let results: number[][] = [];
+
     if (points.length === 2) {
         const [x, y] = points[0];
         if (x === points[1][0]) {
@@ -274,10 +281,10 @@ export function getPointsOnLines(
             /// Math.min(maxY1, miax2)
             const bottom = Math.min(...minMaxs.map(minMax => minMax[1][1]));
 
-            if (top > bottom) {
+            if (tinyThrottle(top - bottom) > 0) {
                 return [];
             }
-            return [
+            results = [
                 [x, top],
                 [x, bottom],
             ];
@@ -287,22 +294,26 @@ export function getPointsOnLines(
             /// Math.min(maxY1, miax2)
             const right = Math.min(...minMaxs.map(minMax => minMax[0][1]));
 
-            if (left > right) {
+            if (tinyThrottle(left - right) > 0) {
                 return [];
             }
-            return [
+            results = [
                 [left, y],
                 [right, y],
             ];
         }
     }
 
-    return points.filter(point => {
-        return minMaxs.every(minMax => {
-            return (minMax[0][0] <= point[0] && point[0] <= minMax[0][1])
-                && (minMax[1][0] <= point[1] && point[1] <= minMax[1][1]);
+    if (!results.length) {
+        results = points.filter(point => {
+            return minMaxs.every(minMax => {
+                return (minMax[0][0] <= point[0] && point[0] <= minMax[0][1])
+                    && (minMax[1][0] <= point[1] && point[1] <= minMax[1][1]);
+            });
         });
-    });
+    }
+
+    return results.map(result => [tinyThrottle(result[0]), tinyThrottle(result[1])]);
 
 }
 /**
@@ -330,8 +341,8 @@ export function getOverlapPoints(points1: number[][], points2: number[][]): numb
     }
     const lines1 = convertLines(targetPoints1);
     const lines2 = convertLines(targetPoints2);
-    const linearConstantss1 = lines1.map(line1 => getLinearConstants(line1[0], line1[1]));
-    const linearConstantss2 = lines2.map(line2 => getLinearConstants(line2[0], line2[1]));
+    const linearConstantsList1 = lines1.map(line1 => getLinearConstants(line1[0], line1[1]));
+    const linearConstantsList2 = lines2.map(line2 => getLinearConstants(line2[0], line2[1]));
 
     const overlapInfos: Array<{
         index1: number;
@@ -339,10 +350,10 @@ export function getOverlapPoints(points1: number[][], points2: number[][]): numb
         pos: number[];
     }> = [];
 
-    linearConstantss1.forEach((linearConstants1, i) => {
+    linearConstantsList1.forEach((linearConstants1, i) => {
         const line1 = lines1[i];
         const linePointInfos: PointInfo[] = [];
-        linearConstantss2.forEach((linearConstants2, j) => {
+        linearConstantsList2.forEach((linearConstants2, j) => {
             const intersectionPoints = getIntersectionPointsByConstants(linearConstants1, linearConstants2);
             const points = getPointsOnLines(intersectionPoints, [line1, lines2[j]]);
 
