@@ -464,54 +464,84 @@ export function getOverlapPoints(points1: number[][], points2: number[][]): numb
         return true;
     });
 }
+function findReversedAreas(points1: number[][], points2: number[][], index: number = 0, areas: number[][][] = []): number[][][] {
+    const isFirst = areas.length === 0;
+    const length = points1.length;
+    const nextIndex = points1[index] ? index : 0;
+    const nextPoints1 = [...points1.slice(nextIndex), ...points1.slice(0, nextIndex)];
 
-function findConnectedArea(points1: number[][], points2: number[][]) {
-    points1.forEach((point1, i) => {
+    for (let i = 0; i < length; ++i) {
+        const point1 = nextPoints1[i];
+
         if (find(points2, point2 => point2[0] === point1[0] && point2[1] === point1[1])) {
-            return;
+            continue;
         }
-        const line = [points1[i + 1] || points1[0], point1];
+        if (areas.some(nextArea => find(nextArea, areaPoint => areaPoint[0] === point1[0] && areaPoint[1] === point1[1]))) {
+            if (isFirst) {
+                continue;
+            } else {
+                break;
+            }
+        }
+        let nextArea: number[][];
 
-        const index = findIndex(points2, point2 => {
+        if (isFirst) {
+            nextArea = [];
+            areas.push(nextArea);
+        } else {
+            nextArea = areas[areas.length - 1];
+        }
+        nextArea.push(point1);
+
+        const line = [point1, points1[index + 1] || points1[0]];
+        const nextPoint2 = points2.filter(point2 => {
             return isPointOnLine(point2, line);
-        });
+        }).sort((a, b) => {
+            return getDist(point1, a) - getDist(point1, b);
+        })[0];
 
-        if (index === -1) {
-            return;
+        if (!nextPoint2) {
+            findReversedAreas(nextPoints1, points2, i + 1, areas);
+            break;
+        } else {
+            const point2Index = points2.indexOf(nextPoint2);
+
+            findReversedAreas(points2, points1, point2Index, areas);
+            if (!isFirst) {
+                break;
+            }
         }
-        const nextPoint = points2[index];
-    });
+    }
+    return areas;
+}
+export function findConnectedAreas(points1: number[][], points2: number[][]) {
+    return findReversedAreas(points1, [...points2].reverse());
 }
 /**
 * Get Unoverlap areas based on points1.
 * @memberof OverlapArea
 */
 export function getUnoverlapAreas(points1: number[][], points2: number[][]): number[][][] {
-    const areas: number[][][] = [];
-
     const overlapPoints = getOverlapPoints(points1, points2);
+    const nextOverlapPoints = [...overlapPoints].reverse();
+    const connectedAreas = findReversedAreas(points1, nextOverlapPoints)
 
+    const firstConnectedArea = connectedAreas[0];
+    if (connectedAreas.length === 1 && nextOverlapPoints.every(point => firstConnectedArea.indexOf(point) === -1)) {
+        const lastPoint = firstConnectedArea[firstConnectedArea.length - 1];
+        const firstPoint = [...nextOverlapPoints].sort((a, b) => {
+            return getDist(lastPoint, a) - getDist(lastPoint, b);
+        })[0];
+        const firstIndex = nextOverlapPoints.indexOf(firstPoint);
 
-    points1.forEach((point, i) => {
-        if (find(overlapPoints, overlapPoint => overlapPoint[0] === point[0] && overlapPoint[1] === point[1])) {
-            return;
-        }
-        const line = [points1[i + 1] || points1[0], point];
-
-        const index = findIndex(overlapPoints, overlapPoint => {
-            return isPointOnLine(overlapPoint, line);
-        });
-
-        if (index === -1) {
-            return;
-        }
-        const nextPoint = overlapPoints[index];
-
-
-    });
-
-
-    return areas;
+        firstConnectedArea.push(
+            ...nextOverlapPoints.slice(firstIndex),
+            ...nextOverlapPoints.slice(0, firstIndex),
+            nextOverlapPoints[firstIndex],
+            lastPoint,
+        );
+    }
+    return connectedAreas;
 }
 /**
 * Gets the size of the overlapped part of two shapes.

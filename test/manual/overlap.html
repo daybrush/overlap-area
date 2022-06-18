@@ -19,13 +19,19 @@
         [300, 100],
         [250, 160],
         [150, 150],
-        // [200, 120],
+        [200, 120],
     ];
     const points2 = [
-        [100, 100],
-        [350, 100],
-        [350, 120],
-        [100, 120],
+        [220, 100],
+        [250, 100],
+        [250, 150],
+        [220, 150],
+
+        // [100, 100],
+        // [350, 100],
+        // [350, 150],
+        // [100, 150],
+
         // [250, 100],
         // [300, 50],
         // [350, 60],
@@ -55,7 +61,9 @@
     // console.log(OverlapArea.isInside(points2[0], points1))
 
     const points3 = OverlapArea.getOverlapPoints(points1, points2);
-    OverlapArea.getUnoverlapAreas(points2, points1);
-    console.log(points3);
+    OverlapArea.getUnoverlapAreas(points1, points2).forEach(area => {
+        console.log("AREA", area);
+        fillRect(area, "#ffffaa");
+    });
     fillRect(points3, "#aaaaffaa");
 </script>
