@@ -1,4 +1,4 @@
-import { sum, findIndex, getShapeDirection, getDist, throttle, TINY_NUM } from "@daybrush/utils";
+import { sum, findIndex, getShapeDirection, getDist, throttle, TINY_NUM, find } from "@daybrush/utils";
 import { PointInfo, Rect } from "./types";
 import { tinyThrottle } from "./utils";
 
@@ -114,7 +114,17 @@ export function isInside(pos: number[], points: number[][], excludeLine?: boolea
     }
     return false;
 }
-
+/**
+ * Get distance from point to constants. [a, b, c] (ax + by + c = 0)
+ * @return [a, b, c]
+ * @memberof OverlapArea
+ */
+export function getDistanceFromPointToConstants(
+    [a, b, c]: [number, number, number],
+    pos: number[],
+) {
+    return (a * pos[0] + b * pos[1] + c) / (a * a + b * b);
+}
 /**
  * Get the coefficient of the linear function. [a, b, c] (ax + by + c = 0)
  * @return [a, b, c]
@@ -125,29 +135,40 @@ export function getLinearConstants(point1: number[], point2: number[]): [number,
     const [x2, y2] = point2;
     // ax + by + c = 0
     // [a, b, c]
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+
+    if (Math.abs(dx) < TINY_NUM) {
+        dx = 0;
+    }
+    if (Math.abs(dy) < TINY_NUM) {
+        dy = 0;
+    }
+
+    // b > 0
+    // ax + by + c = 0
     let a = 0;
     let b = 0;
     let c = 0;
-
-    if (x1 === x2 && y1 === y2) {
-        return [0, 0, 0];
-    } if (x1 === x2) {
-        // x = x1
-        return [1, 0, -x1];
-    } else if (y1 === y2) {
-        // y = y1
-        return [0, 1, -y1];
+    if (!dx) {
+        if (dy) {
+            // -x + 1 = 0
+            a = -1;
+            c = x1;
+        }
+    } else if (!dy) {
+        // y - 1 = 0
+        b = 1;
+        c = -y1;
     } else {
-        // x1 + a * y1 + b = 0
-        // x2 + a * y2 + b = 0
-        // (x1 -x2) + (y1 - y2) * a = 0
-        // a = (x2 - x1) / (y1 - y2)
-        // x1 + (x2 - x1) / (y1 - y2)
-
-        const a = (x2 - x1) / (y1 - y2);
-        const b = -x1 - a * y1;
-        return [1, a, b];
+        // y = -a(x - x1) + y1
+        // ax + y + a * x1 - y1 = 0
+        a = -dy / dx;
+        b = 1;
+        c = -a * x1 - y1;
     }
+
+    return [a, b, c].map(v => throttle(v, TINY_NUM)) as [number, number, number];
 }
 /**
  * Get intersection points with linear functions.
@@ -258,6 +279,15 @@ export function getIntersectionPoints(
         return getPointsOnLines(points, [line1, line2]);
     }
     return points;
+}
+
+export function isPointOnLine(
+    pos: number[],
+    line: number[][],
+) {
+    const linearConstants = getLinearConstants(line[0], line[1]);
+
+    return tinyThrottle(getDistanceFromPointToConstants(linearConstants, pos)) === 0;
 }
 /**
  * Get the points on the lines (between two points).
@@ -421,7 +451,6 @@ export function getOverlapPoints(points1: number[][], points2: number[][]): numb
             }
         }
     });
-    // console.log(overlapInfos);
     const overlapPoints = overlapInfos.map(({ pos }) => pos);
     const pointMap: Record<string, boolean> = {};
 
@@ -434,6 +463,55 @@ export function getOverlapPoints(points1: number[][], points2: number[][]): numb
         pointMap[key] = true;
         return true;
     });
+}
+
+function findConnectedArea(points1: number[][], points2: number[][]) {
+    points1.forEach((point1, i) => {
+        if (find(points2, point2 => point2[0] === point1[0] && point2[1] === point1[1])) {
+            return;
+        }
+        const line = [points1[i + 1] || points1[0], point1];
+
+        const index = findIndex(points2, point2 => {
+            return isPointOnLine(point2, line);
+        });
+
+        if (index === -1) {
+            return;
+        }
+        const nextPoint = points2[index];
+    });
+}
+/**
+* Get Unoverlap areas based on points1.
+* @memberof OverlapArea
+*/
+export function getUnoverlapAreas(points1: number[][], points2: number[][]): number[][][] {
+    const areas: number[][][] = [];
+
+    const overlapPoints = getOverlapPoints(points1, points2);
+
+
+    points1.forEach((point, i) => {
+        if (find(overlapPoints, overlapPoint => overlapPoint[0] === point[0] && overlapPoint[1] === point[1])) {
+            return;
+        }
+        const line = [points1[i + 1] || points1[0], point];
+
+        const index = findIndex(overlapPoints, overlapPoint => {
+            return isPointOnLine(overlapPoint, line);
+        });
+
+        if (index === -1) {
+            return;
+        }
+        const nextPoint = overlapPoints[index];
+
+
+    });
+
+
+    return areas;
 }
 /**
 * Gets the size of the overlapped part of two shapes.
