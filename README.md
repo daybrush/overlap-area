@@ -56,6 +56,7 @@ console.log(getOverlapSize(points1, points2));
 ```
 ### User Overlap Areas
 Get the areas of the overlapped part of two shapes.
+
 ![Overlap Areas](https://daybrush.com/overlap-area/images/overlap.png)
 
 ```js
@@ -99,6 +100,7 @@ console.log(getOverlapAreas(points1, points2));
 ```
 ### User Unoverlap Areas
 Get non-overlapping areas of two shapes based on points1.
+
 
 ![Unoverlap Areas](https://daybrush.com/overlap-area/images/unoverlap.png)
 
