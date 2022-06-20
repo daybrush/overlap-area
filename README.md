@@ -54,7 +54,96 @@ console.log(getOverlapPoints(points1, points2));
 // 1000
 console.log(getOverlapSize(points1, points2));
 ```
+### User Overlap Areas
+Get the areas of the overlapped part of two shapes.
+![Overlap Areas](https://daybrush.com/overlap-area/images/overlap.png)
 
+```js
+import { getOverlapAreas } from "overlap-area";
+
+const points1 = [
+    [150, 100],
+    [200, 50],
+    [250, 60],
+    [300, 100],
+    [250, 160],
+    [150, 150],
+    [200, 120],
+];
+const points2 = [
+    [250, 100],
+    [300, 50],
+    [350, 60],
+    [400, 100],
+    [350, 160],
+    [220, 150],
+    [300, 120],
+];
+
+/*
+[
+    [
+        [272.2222222, 77.7777778],
+        [300, 100],
+        [287.5, 115],
+        [250, 100],
+    ],
+    [
+        [275.7575758, 129.0909091],
+        [256.0240964, 152.7710843],
+        [220, 150],
+    ],
+]
+*/
+console.log(getOverlapAreas(points1, points2));
+```
+### User Unoverlap Areas
+Get non-overlapping areas of two shapes based on points1.
+
+![Unoverlap Areas](https://daybrush.com/overlap-area/images/unoverlap.png)
+
+```js
+import { getUnoverlapAreas } from "overlap-area";
+
+const points1 = [
+    [150, 100],
+    [200, 50],
+    [250, 60],
+    [300, 100],
+    [250, 160],
+    [150, 150],
+    [200, 120],
+];
+const points2 = [
+    [250, 100],
+    [300, 50],
+    [350, 60],
+    [400, 100],
+    [350, 160],
+    [220, 150],
+    [300, 120],
+];
+
+/*
+[
+    [
+        [150, 100],
+        [200, 50],
+        [250, 60],
+        [272.2222222, 77.7777778],
+        [250, 100],
+        [287.5, 115],
+        [275.7575758, 129.0909091],
+        [220, 150],
+        [256.0240964, 152.7710843],
+        [250, 160],
+        [150, 150],
+        [200, 120],
+    ],
+]
+*/
+console.log(getUnoverlapAreas(points1, points2));
+```
 ### Calculate the overlap of elements
 ```js
 import { getElementInfo } from "moveable";
