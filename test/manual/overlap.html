@@ -7,11 +7,171 @@
 <canvas width="1000" height="1000"></canvas>
 <script src="../../dist/overlap-area.js"></script>
 <script>
+    let INF = 10000;
+
+    class Point {
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+        }
+    }
+
+    // Given three collinear points p, q, r,
+    // the function checks if point q lies
+    // on line segment 'pr'
+    function onSegment(p, q, r) {
+        if (q.x <= Math.max(p.x, r.x) &&
+            q.x >= Math.min(p.x, r.x) &&
+            q.y <= Math.max(p.y, r.y) &&
+            q.y >= Math.min(p.y, r.y)) {
+            return true;
+        }
+        return false;
+    }
+
+    // To find orientation of ordered triplet (p, q, r).
+    // The function returns following values
+    // 0 --> p, q and r are collinear
+    // 1 --> Clockwise
+    // 2 --> Counterclockwise
+    function orientation(p, q, r) {
+        let val = (q.y - p.y) * (r.x - q.x)
+            - (q.x - p.x) * (r.y - q.y);
+
+        if (val == 0) {
+            return 0; // collinear
+        }
+        return (val > 0) ? 1 : 2; // clock or counterclock wise
+    }
+
+    // The function that returns true if
+    // line segment 'p1q1' and 'p2q2' intersect.
+    function doIntersect(p1, q1, p2, q2) {
+        // Find the four orientations needed for
+        // general and special cases
+        let o1 = orientation(p1, q1, p2);
+        let o2 = orientation(p1, q1, q2);
+        let o3 = orientation(p2, q2, p1);
+        let o4 = orientation(p2, q2, q1);
+
+        // General case
+        if (o1 != o2 && o3 != o4) {
+            return true;
+        }
+
+        // Special Cases
+        // p1, q1 and p2 are collinear and
+        // p2 lies on segment p1q1
+        if (o1 == 0 && onSegment(p1, p2, q1)) {
+            return true;
+        }
+
+        // p1, q1 and p2 are collinear and
+        // q2 lies on segment p1q1
+        if (o2 == 0 && onSegment(p1, q2, q1)) {
+            return true;
+        }
+
+        // p2, q2 and p1 are collinear and
+        // p1 lies on segment p2q2
+        if (o3 == 0 && onSegment(p2, p1, q2)) {
+            return true;
+        }
+
+        // p2, q2 and q1 are collinear and
+        // q1 lies on segment p2q2
+        if (o4 == 0 && onSegment(p2, q1, q2)) {
+            return true;
+        }
+
+        // Doesn't fall in any of the above cases
+        return false;
+    }
+
+    // Returns true if the point p lies
+    // inside the polygon[] with n vertices
+    function isInside(polygon, p) {
+        const n = polygon.length;
+        // There must be at least 3 vertices in polygon[]
+        if (n < 3) {
+            return false;
+        }
+
+        // Create a point for line segment from p to infinite
+        let extreme = new Point(INF, p.y);
+
+        // Count intersections of the above line
+        // with sides of polygon
+        let count = 0, i = 0;
+        do {
+            let next = (i + 1) % n;
+
+            // Check if the line segment from 'p' to
+            // 'extreme' intersects with the line
+            // segment from 'polygon[i]' to 'polygon[next]'
+            if (doIntersect(polygon[i], polygon[next], p, extreme)) {
+                // If the point 'p' is collinear with line
+                // segment 'i-next', then check if it lies
+                // on segment. If it lies, return true, otherwise false
+                if (orientation(polygon[i], p, polygon[next]) == 0) {
+                    return onSegment(polygon[i], p,
+                        polygon[next]);
+                }
+
+                count++;
+            }
+            i = next;
+        } while (i != 0);
+
+        // Return true if count is odd, false otherwise
+        return (count % 2 == 1); // Same as (count%2 == 1)
+    }
+</script>
+<script>
     const canvas = document.querySelector("canvas");
     const ctx = canvas.getContext("2d");
 
+    function fillRect(points, color, lineColor = "#aaaaaa") {
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = lineColor;
+        ctx.fillStyle = color;
+        [...points, points[0]].forEach((point, i) => {
+            if (i === 0) {
+                ctx.moveTo(point[0], point[1]);
+            } else {
+                ctx.lineTo(point[0], point[1]);
+            }
+        });
+        ctx.fill();
+        ctx.stroke();
+        ctx.closePath();
+    }
+    function fillCircle(points, color) {
+        points.forEach((point, i) => {
+            ctx.beginPath();
+            ctx.arc(point[0], point[1], 2, 0, 360);
+            // ctx.strokeStyle = color;
+            ctx.fillStyle = color;
+            // ctx.stroke();
+            ctx.fill();
+            ctx.closePath();
+        });
+    }
     // Start a new path
 
+    // const points1 = [
+    //     [611.5, 291.35180065],
+    //     [682.21069375, 362.0625],
+    //     [611.5, 432.77319335],
+    //     [540.78930625, 362.0625],
+    // ];
+    // const points2 = [
+    //     [525, 248],
+    //     [648, 248],
+    //     [648, 454],
+    //     [525, 454],
+    // ];
     const points1 = [
         [150, 100],
         [200, 50],
@@ -22,48 +182,24 @@
         [200, 120],
     ];
     const points2 = [
-        [220, 100],
         [250, 100],
-        [250, 150],
+        [300, 50],
+        [350, 60],
+        [400, 100],
+        [350, 160],
         [220, 150],
-
-        // [100, 100],
-        // [350, 100],
-        // [350, 150],
-        // [100, 150],
-
-        // [250, 100],
-        // [300, 50],
-        // [350, 60],
-        // [400, 100],
-        // [350, 160],
-        // [250, 150],
-        // [300, 120],
+        [300, 120],
     ];
-    function fillRect(points, color) {
-        ctx.beginPath();
-        points.forEach((point, i) => {
-            if (i === 0) {
-                ctx.moveTo(point[0], point[1]);
-            } else {
-                ctx.lineTo(point[0], point[1]);
-            }
-        });
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.stroke();
-    }
 
-    fillRect(points1, "#ffaaaaaa");
-    fillRect(points2, "#aaffaaaa");
+    fillRect(points1, "#ffffff77");
+    fillRect(points2, "#ffffff77");
 
-    // console.log(OverlapArea.isInside([100, 100], [[0, 0], [200, 0], [200, 200], [0, 200]]))
-    // console.log(OverlapArea.isInside(points2[0], points1))
 
-    const points3 = OverlapArea.getOverlapPoints(points1, points2);
-    OverlapArea.getUnoverlapAreas(points1, points2).forEach(area => {
-        console.log("AREA", area);
-        fillRect(area, "#ffffaa");
+    const ov = OverlapArea.getUnoverlapAreas(points1, points2);
+
+    console.log(JSON.stringify(ov));
+    ov.forEach(area => {
+        fillRect(area, "#ffaaaa");
     });
-    fillRect(points3, "#aaaaffaa");
+
 </script>

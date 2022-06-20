@@ -9,3 +9,10 @@ export interface Rect {
     width: number;
     height: number;
 }
+
+export interface OverlapPointInfo {
+    index1: number;
+    index2: number;
+    pos: number[];
+    type: "intersection" | "inside";
+}
