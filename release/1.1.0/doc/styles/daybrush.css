@@ -134,3 +134,42 @@ nav.searching .parent.targeting ul li a {
 nav>h2.custom>a {
 	margin:12px 10px;
 }
+
+tr.deprecated td {
+    text-decoration: line-through;
+}
+
+
+.db-prop {
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+.db-name {
+    font-size: 120%;
+    font-weight: normal;
+}
+
+.db-default {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 90%;
+}
+.db-optional {
+    display: inline-block;
+    font-size: 70%;
+    font-weight: normal;
+    background: #333;
+    border-radius: 3px;
+    padding: 1px 4px;
+    color: #eee;
+    vertical-align: middle;
+    margin-left: 10px;
+}
+.db-type {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 13px 10px;
+    border: 1px solid #d8dcdf;
+    font-size: 90%;
+}

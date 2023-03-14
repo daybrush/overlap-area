@@ -10,7 +10,7 @@ version: 1.1.0
 
 var utils = require('@daybrush/utils');
 
-/*! *****************************************************************************
+/******************************************************************************
 Copyright (c) Microsoft Corporation.
 
 Permission to use, copy, modify, and/or distribute this software for any
@@ -24,12 +24,14 @@ LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR
 OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
 PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
-function __spreadArrays() {
-  for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
-
-  for (var r = Array(s), k = 0, i = 0; i < il; i++) for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) r[k] = a[j];
-
-  return r;
+function __spreadArray(to, from, pack) {
+  if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {
+    if (ar || !(i in from)) {
+      if (!ar) ar = Array.prototype.slice.call(from, 0, i);
+      ar[i] = from[i];
+    }
+  }
+  return to.concat(ar || Array.prototype.slice.call(from));
 }
 
 function tinyThrottle(num) {
@@ -53,17 +55,14 @@ function flat(arr) {
 /**
  * @namespace OverlapArea
  */
-
 /**
  * Gets the size of a shape (polygon) made of points.
  * @memberof OverlapArea
  */
-
 function getAreaSize(points) {
   if (points.length < 3) {
     return 0;
   }
-
   return Math.abs(utils.sum(points.map(function (point, i) {
     var nextPoint = points[i + 1] || points[0];
     return point[0] * nextPoint[1] - nextPoint[0] * point[1];
@@ -73,19 +72,16 @@ function getAreaSize(points) {
  * Get points that fit the rect,
  * @memberof OverlapArea
  */
-
 function fitPoints(points, rect) {
   var width = rect.width,
-      height = rect.height,
-      left = rect.left,
-      top = rect.top;
-
+    height = rect.height,
+    left = rect.left,
+    top = rect.top;
   var _a = getMinMaxs(points),
-      minX = _a.minX,
-      minY = _a.minY,
-      maxX = _a.maxX,
-      maxY = _a.maxY;
-
+    minX = _a.minX,
+    minY = _a.minY,
+    maxX = _a.maxX,
+    maxY = _a.maxY;
   var ratioX = width / (maxX - minX);
   var ratioY = height / (maxY - minY);
   return points.map(function (point) {
@@ -96,7 +92,6 @@ function fitPoints(points, rect) {
  * Get the minimum and maximum points of the points.
  * @memberof OverlapArea
  */
-
 function getMinMaxs(points) {
   var xs = points.map(function (point) {
     return point[0];
@@ -118,15 +113,12 @@ function getMinMaxs(points) {
  * @param - whether to check except line
  * @memberof OverlapArea
  */
-
 function isInside(pos, points, excludeLine) {
   var x = pos[0],
-      y = pos[1];
-
+    y = pos[1];
   var _a = getMinMaxs(points),
-      minX = _a.minX,
-      maxX = _a.maxX;
-
+    minX = _a.minX,
+    maxX = _a.maxX;
   var xLine = [[minX, y], [maxX, y]];
   var xLinearConstants = getLinearConstants(xLine[0], xLine[1]);
   var lines = convertLines(points);
@@ -134,7 +126,6 @@ function isInside(pos, points, excludeLine) {
   lines.forEach(function (line) {
     var linearConstants = getLinearConstants(line[0], line[1]);
     var standardPoint = line[0];
-
     if (isSameConstants(xLinearConstants, linearConstants)) {
       intersectionPosInfos.push({
         pos: pos,
@@ -162,7 +153,6 @@ function isInside(pos, points, excludeLine) {
       });
     }
   });
-
   if (!excludeLine) {
     // on line
     if (utils.find(intersectionPosInfos, function (p) {
@@ -171,18 +161,15 @@ function isInside(pos, points, excludeLine) {
       return true;
     }
   }
-
   var intersectionCount = 0;
   var xMap = {};
   intersectionPosInfos.forEach(function (_a) {
     var pos = _a.pos,
-        type = _a.type,
-        line = _a.line;
-
+      type = _a.type,
+      line = _a.line;
     if (pos[0] > x) {
       return;
     }
-
     if (type === "intersection") {
       ++intersectionCount;
     } else if (type === "line") {
@@ -193,7 +180,6 @@ function isInside(pos, points, excludeLine) {
       });
       var prevValue = xMap[pos[0]];
       var nextValue = point[1] > y ? 1 : -1;
-
       if (!prevValue) {
         xMap[pos[0]] = nextValue;
       } else if (prevValue !== nextValue) {
@@ -208,11 +194,10 @@ function isInside(pos, points, excludeLine) {
  * @return [a, b, c]
  * @memberof OverlapArea
  */
-
 function getDistanceFromPointToConstants(_a, pos) {
   var a = _a[0],
-      b = _a[1],
-      c = _a[2];
+    b = _a[1],
+    c = _a[2];
   return (a * pos[0] + b * pos[1] + c) / (a * a + b * b);
 }
 /**
@@ -220,31 +205,26 @@ function getDistanceFromPointToConstants(_a, pos) {
  * @return [a, b, c]
  * @memberof OverlapArea
  */
-
 function getLinearConstants(point1, point2) {
   var x1 = point1[0],
-      y1 = point1[1];
+    y1 = point1[1];
   var x2 = point2[0],
-      y2 = point2[1]; // ax + by + c = 0
+    y2 = point2[1];
+  // ax + by + c = 0
   // [a, b, c]
-
   var dx = x2 - x1;
   var dy = y2 - y1;
-
   if (Math.abs(dx) < utils.TINY_NUM) {
     dx = 0;
   }
-
   if (Math.abs(dy) < utils.TINY_NUM) {
     dy = 0;
-  } // b > 0
+  }
+  // b > 0
   // ax + by + c = 0
-
-
   var a = 0;
   var b = 0;
   var c = 0;
-
   if (!dx) {
     if (dy) {
       // -x + 1 = 0
@@ -262,25 +242,22 @@ function getLinearConstants(point1, point2) {
     b = 1;
     c = -a * x1 - y1;
   }
-
   return [a, b, c];
 }
 /**
  * Get intersection points with linear functions.
  * @memberof OverlapArea
  */
-
 function getIntersectionPointsByConstants(linearConstants1, linearConstants2) {
   var a1 = linearConstants1[0],
-      b1 = linearConstants1[1],
-      c1 = linearConstants1[2];
+    b1 = linearConstants1[1],
+    c1 = linearConstants1[2];
   var a2 = linearConstants2[0],
-      b2 = linearConstants2[1],
-      c2 = linearConstants2[2];
+    b2 = linearConstants2[1],
+    c2 = linearConstants2[2];
   var isZeroA = a1 === 0 && a2 === 0;
   var isZeroB = b1 === 0 && b2 === 0;
   var results = [];
-
   if (isZeroA && isZeroB) {
     return [];
   } else if (isZeroA) {
@@ -288,7 +265,6 @@ function getIntersectionPointsByConstants(linearConstants1, linearConstants2) {
     // b2 * y + c2 = 0
     var y1 = -c1 / b1;
     var y2 = -c2 / b2;
-
     if (y1 !== y2) {
       return [];
     } else {
@@ -299,7 +275,6 @@ function getIntersectionPointsByConstants(linearConstants1, linearConstants2) {
     // a2 * x + c2 = 0
     var x1 = -c1 / a1;
     var x2 = -c2 / a2;
-
     if (x1 !== x2) {
       return [];
     } else {
@@ -343,7 +318,6 @@ function getIntersectionPointsByConstants(linearConstants1, linearConstants2) {
     var y = -(a1 * x + c1) / b1;
     results = [[x, y]];
   }
-
   return results.map(function (result) {
     return [result[0], result[1]];
   });
@@ -352,14 +326,11 @@ function getIntersectionPointsByConstants(linearConstants1, linearConstants2) {
  * Get intersection points to the two lines.
  * @memberof OverlapArea
  */
-
 function getIntersectionPoints(line1, line2, isLimit) {
   var points = getIntersectionPointsByConstants(getLinearConstants(line1[0], line1[1]), getLinearConstants(line2[0], line2[1]));
-
   if (isLimit) {
     return getPointsOnLines(points, [line1, line2]);
   }
-
   return points;
 }
 function isPointOnLine(pos, line) {
@@ -370,7 +341,6 @@ function isPointOnLine(pos, line) {
  * Get the points on the lines (between two points).
  * @memberof OverlapArea
  */
-
 function getPointsOnLines(points, lines) {
   var minMaxs = lines.map(function (line) {
     return [0, 1].map(function (order) {
@@ -378,55 +348,47 @@ function getPointsOnLines(points, lines) {
     });
   });
   var results = [];
-
   if (points.length === 2) {
     var _a = points[0],
-        x = _a[0],
-        y = _a[1];
-
+      x = _a[0],
+      y = _a[1];
     if (!tinyThrottle(x - points[1][0])) {
       /// Math.max(minY1, minY2)
       var top = Math.max.apply(Math, minMaxs.map(function (minMax) {
         return minMax[1][0];
-      })); /// Math.min(maxY1, miax2)
-
+      }));
+      /// Math.min(maxY1, miax2)
       var bottom = Math.min.apply(Math, minMaxs.map(function (minMax) {
         return minMax[1][1];
       }));
-
       if (tinyThrottle(top - bottom) > 0) {
         return [];
       }
-
       results = [[x, top], [x, bottom]];
     } else if (!tinyThrottle(y - points[1][1])) {
       /// Math.max(minY1, minY2)
       var left = Math.max.apply(Math, minMaxs.map(function (minMax) {
         return minMax[0][0];
-      })); /// Math.min(maxY1, miax2)
-
+      }));
+      /// Math.min(maxY1, miax2)
       var right = Math.min.apply(Math, minMaxs.map(function (minMax) {
         return minMax[0][1];
       }));
-
       if (tinyThrottle(left - right) > 0) {
         return [];
       }
-
       results = [[left, y], [right, y]];
     }
   }
-
   if (!results.length) {
     results = points.filter(function (point) {
       var pointX = point[0],
-          pointY = point[1];
+        pointY = point[1];
       return minMaxs.every(function (minMax) {
         return 0 <= tinyThrottle(pointX - minMax[0][0]) && 0 <= tinyThrottle(minMax[0][1] - pointX) && 0 <= tinyThrottle(pointY - minMax[1][0]) && 0 <= tinyThrottle(minMax[1][1] - pointY);
       });
     });
   }
-
   return results.map(function (result) {
     return [tinyThrottle(result[0]), tinyThrottle(result[1])];
   });
@@ -436,25 +398,20 @@ function getPointsOnLines(points, lines) {
 * @function
 * @memberof OverlapArea
 */
-
 function convertLines(points) {
-  return __spreadArrays(points.slice(1), [points[0]]).map(function (point, i) {
+  return __spreadArray(__spreadArray([], points.slice(1), true), [points[0]], false).map(function (point, i) {
     return [points[i], point];
   });
 }
-
 function getOverlapPointInfos(points1, points2) {
   var targetPoints1 = points1.slice();
   var targetPoints2 = points2.slice();
-
   if (utils.getShapeDirection(targetPoints1) === -1) {
     targetPoints1.reverse();
   }
-
   if (utils.getShapeDirection(targetPoints2) === -1) {
     targetPoints2.reverse();
   }
-
   var lines1 = convertLines(targetPoints1);
   var lines2 = convertLines(targetPoints2);
   var linearConstantsList1 = lines1.map(function (line1) {
@@ -483,7 +440,6 @@ function getOverlapPointInfos(points1, points2) {
       return utils.getDist(line1[0], a.pos) - utils.getDist(line1[0], b.pos);
     });
     overlapInfos.push.apply(overlapInfos, linePointInfos);
-
     if (isInside(line1[1], targetPoints2)) {
       overlapInfos.push({
         index1: i,
@@ -497,42 +453,33 @@ function getOverlapPointInfos(points1, points2) {
     if (!isInside(line2[1], targetPoints1)) {
       return;
     }
-
     var isNext = false;
     var index = utils.findIndex(overlapInfos, function (_a) {
       var index2 = _a.index2;
-
       if (index2 === i) {
         isNext = true;
         return false;
       }
-
       if (isNext) {
         return true;
       }
-
       return false;
     });
-
     if (index === -1) {
       isNext = false;
       index = utils.findIndex(overlapInfos, function (_a) {
         var index1 = _a.index1,
-            index2 = _a.index2;
-
+          index2 = _a.index2;
         if (index1 === -1 && index2 + 1 === i) {
           isNext = true;
           return false;
         }
-
         if (isNext) {
           return true;
         }
-
         return false;
       });
     }
-
     if (index === -1) {
       overlapInfos.push({
         index1: -1,
@@ -552,12 +499,10 @@ function getOverlapPointInfos(points1, points2) {
   var pointMap = {};
   return overlapInfos.filter(function (_a) {
     var pos = _a.pos;
-    var key = pos[0] + "x" + pos[1];
-
+    var key = "".concat(pos[0], "x").concat(pos[1]);
     if (pointMap[key]) {
       return false;
     }
-
     pointMap[key] = true;
     return true;
   });
@@ -567,8 +512,6 @@ function getOverlapPointInfos(points1, points2) {
 * @function
 * @memberof OverlapArea
 */
-
-
 function getOverlapPoints(points1, points2) {
   var infos = getOverlapPointInfos(points1, points2);
   return infos.map(function (_a) {
@@ -576,37 +519,31 @@ function getOverlapPoints(points1, points2) {
     return pos;
   });
 }
-
 function isConnectedLine(line) {
   var _a = line[0],
-      prevIndex1 = _a.index1,
-      prevIndex2 = _a.index2,
-      _b = line[1],
-      nextIndex1 = _b.index1,
-      nextIndex2 = _b.index2;
-
+    prevIndex1 = _a.index1,
+    prevIndex2 = _a.index2,
+    _b = line[1],
+    nextIndex1 = _b.index1,
+    nextIndex2 = _b.index2;
   if (prevIndex1 !== -1) {
     // same line
     if (prevIndex1 === nextIndex1) {
       return true;
     }
-
     if (prevIndex1 + 1 === nextIndex1) {
       return true;
     }
   }
-
   if (prevIndex2 !== -1) {
     // same line
     if (prevIndex2 === nextIndex2) {
       return true;
     }
-
     if (prevIndex2 + 1 === nextIndex2) {
       return true;
     }
   }
-
   return false;
 }
 /**
@@ -614,8 +551,6 @@ function isConnectedLine(line) {
 * @function
 * @memberof OverlapArea
 */
-
-
 function getOverlapAreas(points1, points2) {
   var infos = getOverlapPointInfos(points1, points2);
   var areas = [];
@@ -635,31 +570,24 @@ function getOverlapAreas(points1, points2) {
     });
   });
 }
-
 function findReversedAreas(points1, points2, index, areas) {
   if (index === void 0) {
     index = 0;
   }
-
   if (areas === void 0) {
     areas = [];
   }
-
   var isFirst = areas.length === 0;
   var length = points1.length;
   var nextIndex = points1[index] ? index : 0;
-
-  var nextPoints1 = __spreadArrays(points1.slice(nextIndex), points1.slice(0, nextIndex));
-
+  var nextPoints1 = __spreadArray(__spreadArray([], points1.slice(nextIndex), true), points1.slice(0, nextIndex), true);
   var _loop_1 = function (i) {
     var point1 = nextPoints1[i];
-
     if (utils.find(points2, function (point2) {
       return point2[0] === point1[0] && point2[1] === point1[1];
     })) {
       return "continue";
     }
-
     if (areas.some(function (nextArea) {
       return utils.find(nextArea, function (areaPoint) {
         return areaPoint[0] === point1[0] && areaPoint[1] === point1[1];
@@ -671,16 +599,13 @@ function findReversedAreas(points1, points2, index, areas) {
         return "break";
       }
     }
-
     var nextArea = void 0;
-
     if (isFirst) {
       nextArea = [];
       areas.push(nextArea);
     } else {
       nextArea = areas[areas.length - 1];
     }
-
     nextArea.push(point1);
     var line = [point1, points1[index + 1] || points1[0]];
     var nextPoint2 = points2.filter(function (point2) {
@@ -688,64 +613,51 @@ function findReversedAreas(points1, points2, index, areas) {
     }).sort(function (a, b) {
       return utils.getDist(point1, a) - utils.getDist(point1, b);
     })[0];
-
     if (!nextPoint2) {
       findReversedAreas(nextPoints1, points2, i + 1, areas);
       return "break";
     } else {
       var point2Index = points2.indexOf(nextPoint2);
       findReversedAreas(points2, points1, point2Index, areas);
-
       if (!isFirst) {
         return "break";
       }
     }
   };
-
   for (var i = 0; i < length; ++i) {
     var state_1 = _loop_1(i);
-
     if (state_1 === "break") break;
   }
-
   return areas;
 }
-
 function findConnectedAreas(points1, points2) {
-  return findReversedAreas(points1, __spreadArrays(points2).reverse());
+  return findReversedAreas(points1, __spreadArray([], points2, true).reverse());
 }
 /**
 * Get non-overlapping areas of two shapes based on points1.
 * @memberof OverlapArea
 */
-
 function getUnoverlapAreas(points1, points2) {
   if (!points2.length) {
-    return [__spreadArrays(points1)];
+    return [__spreadArray([], points1, true)];
   }
-
   var overlapAreas = getOverlapAreas(points1, points2);
   var unoverlapAreas = [points1];
   overlapAreas.forEach(function (overlapArea) {
-    var nextOverlapArea = __spreadArrays(overlapArea).reverse();
-
+    var nextOverlapArea = __spreadArray([], overlapArea, true).reverse();
     unoverlapAreas = flat(unoverlapAreas.map(function (area) {
       var connectedAreas = findReversedAreas(area, nextOverlapArea);
       var firstConnectedArea = connectedAreas[0];
-
       if (connectedAreas.length === 1 && nextOverlapArea.every(function (point) {
         return firstConnectedArea.indexOf(point) === -1;
       })) {
         var lastPoint_1 = firstConnectedArea[firstConnectedArea.length - 1];
-
-        var firstPoint = __spreadArrays(nextOverlapArea).sort(function (a, b) {
+        var firstPoint = __spreadArray([], nextOverlapArea, true).sort(function (a, b) {
           return utils.getDist(lastPoint_1, a) - utils.getDist(lastPoint_1, b);
         })[0];
-
         var firstIndex = nextOverlapArea.indexOf(firstPoint);
-        firstConnectedArea.push.apply(firstConnectedArea, __spreadArrays(nextOverlapArea.slice(firstIndex), nextOverlapArea.slice(0, firstIndex), [nextOverlapArea[firstIndex], lastPoint_1]));
+        firstConnectedArea.push.apply(firstConnectedArea, __spreadArray(__spreadArray(__spreadArray([], nextOverlapArea.slice(firstIndex), false), nextOverlapArea.slice(0, firstIndex), false), [nextOverlapArea[firstIndex], lastPoint_1], false));
       }
-
       return connectedAreas;
     }));
   });
@@ -756,7 +668,6 @@ function getUnoverlapAreas(points1, points2) {
 * @function
 * @memberof OverlapArea
 */
-
 function getOverlapSize(points1, points2) {
   var points = getOverlapPoints(points1, points2);
   return getAreaSize(points);
