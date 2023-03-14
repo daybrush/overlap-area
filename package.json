@@ -14,7 +14,7 @@
         "test": "jest --watchAll",
         "coverage": "jest --coverage && print-coveralls --sort=desc",
         "coveralls": "cat ./coverage/lcov.info | coveralls",
-        "prerelease": "npm run build && prerelease --dirs=dist,doc",
+        "prerelease": "npm run build && npm run doc && prerelease --dirs=dist,doc",
         "deploy": "gh-pages -d ./demo --dest=./ --add --remote origin",
         "release": "npm run build && npm run doc && release --dirs=dist,doc",
         "release:init": "npm run build && npm run doc && release -i --dirs=dist,doc"
@@ -52,6 +52,6 @@
         "pvu": "^0.4.1",
         "ts-jest": "^24.0.2",
         "tslib": "^2.0.3",
-        "typescript": "^4.0.5"
+        "typescript": "^4.5 <4.6"
     }
 }
